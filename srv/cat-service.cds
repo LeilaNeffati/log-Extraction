@@ -1,4 +1,12 @@
-using { my.bookshop, sap.common } from '../db/data-model';
+
 
 service catalogue { 
+ @cds.persistence.skip
+    entity log {
+            
+        key Log_id       : String;
+        description      : String;
+        
+
+    }
 }

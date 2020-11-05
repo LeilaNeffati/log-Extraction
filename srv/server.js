@@ -2,8 +2,10 @@
 const express = require("express");
 const cds = require("@sap/cds");
 const log = require('cf-nodejs-logging-support');
+const correlator = require("express-correlation-id");
 const logLib = require("./src/log/libraries/logLib");
 const logHandlers = require("./src/log/handlers/log_handler");
+const errorTracker = require("./src/log/libraries/errorTracker");
 const loggingLevel = "info";
 const xsenv = require("@sap/xsenv");
 const passport = require("passport");
@@ -13,10 +15,21 @@ const JWTStrategy = require("@sap/xssec").JWTStrategy;
 const app = express();
 const port = process.env.PORT || 8080;
 
+//XSUAA Middleware
+passport.use(new JWTStrategy(xsenv.getServices({
+    uaa: {
+        tag: "xsuaa"
+    }
+}).uaa));
+
 app.use(correlator());
 app.use(logLib.logger);
 
 logLib.setLoggingLevel(loggingLevel);
+
+var cfenv = require("cfenv");
+var appenv = cfenv.getAppEnv();
+logLib.logInfo("application_name: " + appenv.application_name);
 
 (async () => {
 	
@@ -41,15 +54,10 @@ logLib.setLoggingLevel(loggingLevel);
 
     const timeToViews = Date.now() - t1;
     logLib.logInfo(`Views were set in ${timeToViews}ms.`);
-    app.use(odatav2proxy({
-        path: 'v2',
-        model: './gen/csn.json',
-        port: port
-    }));
     // Setting up error middleware for all routes
     app.use(errorTracker.resourceNotFound);
     app.listen(port, () => {
-        logLib.logInfo(`sdc-toolset server started. Listening on port: ${port}`);
+        logLib.logInfo(`log app server started. Listening on port: ${port}`);
     });
 })();
 app.use(errorTracker.track);

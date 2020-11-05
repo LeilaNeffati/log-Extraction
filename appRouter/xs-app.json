@@ -1,0 +1,23 @@
+{
+    "logout": {
+        "logoutEndpoint": "/do/logout"
+    },
+    "authenticationMethod": "route",
+    "sessionTimeout": 60,
+    "routes": [
+       
+        {
+            "source": "/srv_api/(.*)$",
+            "target": "$1",
+            "csrfProtection": false,
+            "authenticationType": "xsuaa",
+            "destination": "srv_api"
+        },
+        {
+            "source": "^(.*)$",
+            "target": "$1",
+            "service": "html5-apps-repo-rt",
+            "authenticationType": "xsuaa"
+        }
+    ]
+}

@@ -1,17 +1,32 @@
-ID: Bookshop
 _schema-version: "2.1"
+ID: Bookshop
+version: 1.0.0
+build-parameters:
+  before-all:
+   - builder: custom
+     commands:
+      - npm install
 parameters:
   deploy_mode: html5-repo
-version: 0.0.1
 modules:
   - name: bookshop-approuter
     type: approuter.nodejs
-    path: bookshop-approuter
+    path: appRouter
     parameters:
       disk-quota: 256M
       memory: 256M
     requires:
       - name: Bookshop_html5_repo_runtime
+      - name: Bookshop_uaa 
+      - name: Bookshop_logging
+      - name: srv_api
+        group: destinations
+        properties:
+          name: srv_api
+          strictSSL: false
+          url: '~{url}'
+          timeout: 120000
+          forwardAuthToken: true
   - name: Bookshop_ui_deployer
     type: com.sap.html5.application-content
     path: Bookshop_ui_deployer
@@ -33,11 +48,24 @@ modules:
       disk-quota: 512M
     provides:
       - name: srv_api
+        public: true
         properties:
           url: ${default-url}
     requires:
       - name: Bookshop-db-hdi-container
+      - name: Bookshop_uaa
+      - name: Bookshop_logging
 resources:
+  - name: Bookshop_uaa
+    parameters:
+      service-name: Bookshop_uaa
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
+      config:
+        xsappname: 'Bookshop-${space}'
+        tenant-mode: dedicated 
+    type: org.cloudfoundry.managed-service
   - name: Bookshop_html5_repo_runtime
     parameters:
       service-plan: app-runtime
@@ -52,3 +80,9 @@ resources:
     type: com.sap.xs.hdi-container
     properties:
       hdi-container-name: ${service-name}
+  - name: Bookshop_logging
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: lite
+      service: application-logs
+      service-name: Bookshop_logging
