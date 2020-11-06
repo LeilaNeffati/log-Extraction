@@ -14,6 +14,7 @@
         "cfenv": "1.2.2",
         "cf-nodejs-client": "latest",
         "cloudfoundry-cli": "latest",
+        "child_process": "latest",
         "@sap/audit-logging": "3.1.1"
          
     },
