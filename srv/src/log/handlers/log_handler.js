@@ -49,8 +49,8 @@ module.exports = cds.service.impl(srv => {
 			//Process URL
 			console.log(logging_endpoint);
 			logging_endpoint = logging_endpoint.replace("wss", "https");
-			logging_endpoint = logging_endpoint.replace(":4443", "");
-			logging_endpoint = logging_endpoint.replace(":443", ""); //Bluemix support
+			// = logging_endpoint.replace(":4443", "");
+			//logging_endpoint = logging_endpoint.replace(":443", ""); //Bluemix support
 			console.log(logging_endpoint);
 			Logs.setEndPoint(logging_endpoint);
 			return Logs.getRecent(appGuid);
